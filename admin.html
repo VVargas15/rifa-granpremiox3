@@ -398,7 +398,7 @@ async function login() {
   try {
     const res = await fetch(SCRIPT_URL + '?action=list&key=' + encodeURIComponent(k), {redirect:'follow'});
     const json = await res.json();
-    if (!json.ok) { $('lerr').textContent = 'Contraseña incorrecta.'; $('pass').value = ''; return; }
+    if (!json.ok) { $('lerr').textContent = (json.error && json.error !== 'No autorizado') ? 'Error del script: ' + json.error : 'Contraseña incorrecta.'; if (!json.error || json.error === 'No autorizado') $('pass').value = ''; return; }
     KEY = k; registros = json.data || []; pullConfig();
     $('lerr').textContent = ''; $('login').hidden = true; $('app').hidden = false;
     render(); toast('Registros cargados correctamente');
