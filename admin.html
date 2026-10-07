@@ -263,7 +263,7 @@ h1.t{font-size:26px;font-weight:800;letter-spacing:-.5px}
 </head>
 <body>
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFpDeJeKXy8NUxXlANALQ7ZEDxOGCzPJk7RW4nRh8HzpEnDpqOWdwL94DAj0laioZvJw/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyM43mUNTpUUPTVaoTyNp3W8KP8ZB8WSqZw5YJAXUYW1ChqFf3FqzIFngwVe3ybnYP_ww/exec';
 let KEY = '';
 const PRECIO = new Proxy({}, { get: (_, k) => { try { const m = conf.nums.mods[k]; if (m && Number(m.precio) > 0) return Number(m.precio); } catch (e) {} return { x1: 25, x3: 50 }[k] || 0; } });
 const modsActivas = () => { try { return Object.entries(conf.nums.mods).filter(([, m]) => m.on).map(([k]) => k); } catch (e) { return ['x1', 'x3']; } };
