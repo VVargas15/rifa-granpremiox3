@@ -370,6 +370,7 @@ const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'
 const mon = () => { try { return conf.sitio.moneda || 'USD'; } catch (e) { return 'USD'; } };
 const sym = () => mon() === 'EUR' ? '€' : '$';
 const usd = n => sym() + Number(n || 0).toLocaleString('es-CO') + ' ' + mon();
+const totR = r => Number(r.total) > 0 ? Number(r.total) : PRECIO[parte(r)];
 const nums = r => Array.isArray(r.nums) ? r.nums.map(String) : String(r.nums == null ? '' : r.nums).split(',').map(t => t.trim()).filter(Boolean);
 const parte = r => 'x' + Math.max(1, nums(r).length);
 const esElim = r => /^eliminado/i.test(String(r.estado || ''));
@@ -488,7 +489,7 @@ function render() {
     kp('Publicados / Confirmados', pag, 'Pagado', '#12392F', '#34D399', '#34D399', pc(pag), pc(pag) + '% del total') +
     kp('Rechazados', rech, 'Rechazado', '#3A1B22', '#F0657A', '#F0657A', pc(rech), pc(rech) + '% del total');
 
-  const sum = f => all.filter(f).reduce((a, r) => a + PRECIO[parte(r)], 0);
+  const sum = f => all.filter(f).reduce((a, r) => a + totR(r), 0);
   const act = [...new Set([...modsActivas(), ...all.map(parte)])].filter(k => conf.nums.mods[k]).sort(), pk = k => sum(r => estado(r) === 'Pagado' && parte(r) === k), paid = sum(r => estado(r) === 'Pagado');
   const bar = v => `<div class="bar"><i style="width:${paid ? Math.round(v / paid * 100) : 0}%;background:#34D399"></i></div>`;
   const mp = (l, v, m) => { const pc = Math.min(100, v / m * 100), t = pc > 0 && pc < 10 ? pc.toFixed(1) : Math.round(pc);
@@ -516,7 +517,7 @@ function render() {
       <div style="color:var(--soft);font-size:13px">${esc(f.dia)}</div>
       <div style="color:var(--soft);font-size:13px">${esc(f.hora)}</div>
       <div><span class="st"><i style="background:${COL[e][1]}"></i>${e}</span></div>
-      <div style="font-weight:700">${usd(PRECIO[parte(r)])}</div></div>`;
+      <div style="font-weight:700">${usd(totR(r))}</div></div>`;
   }).join('') : '<div class="empty">Aún no hay registros.</div>';
   // vistas: dash = resumen · x1 / x3 = su lista · reg = todos los registros · fin = finanzas
   const V = {
@@ -546,7 +547,7 @@ function render() {
       <div class="tx" style="color:var(--soft)">${esc(r.pais || '—')}</div>
       <div class="tx" style="color:var(--soft)" title="${esc(r.correo)}">${esc(r.correo)}</div>
       <div class="tk">${nums(r).map(t => `<span>${esc(t)}</span>`).join('') || '—'}</div>
-      <div style="font-weight:700">${usd(PRECIO[pr])}</div>
+      <div style="font-weight:700">${usd(totR(r))}</div>
       <div><span class="mt">${esc(metNom(r))}</span></div>
       <div><span class="pill" style="background:${COL[e][0]};color:${COL[e][1]}">${e}</span></div>
       <div style="color:var(--soft);font-size:13px">${esc(r.fecha ? String(r.fecha).slice(0, 10) : '—')}</div>
@@ -845,7 +846,7 @@ function verDetalle(id) {
   const r = registros.find(x => String(x.id) === String(id)); if (!r) return;
   const c = r.comprobante || '', e = estado(r), pr = parte(r), fh = fechaHora(r), gpr = conf.sitio.premios.find(p => p.mod === pr && p.valor);
   const src = !c ? '' : (c.startsWith('data:') ? c : (c.startsWith('http') ? toThumb(c) : (c.startsWith('/9j') || c.length > 500 ? 'data:image/jpeg;base64,' + c : '')));
-  const comp = src ? `<img src="${esc(src)}" alt="Comprobante Binance Pay" onclick="$('lb-i').src=this.src;$('lb').style.display='flex'">` : (c ? `<p style="color:var(--mut)">${esc(c)}</p>` : '<p style="color:var(--mut);padding:24px 0;text-align:center">No subió comprobante de Binance Pay</p>');
+  const comp = src ? `<img src="${esc(src)}" alt="Comprobante de pago" onclick="$('lb-i').src=this.src;$('lb').style.display='flex'">` : (c ? `<p style="color:var(--mut)">${esc(c)}</p>` : '<p style="color:var(--mut);padding:24px 0;text-align:center">No subió comprobante de pago</p>');
   const fr = (l, v) => `<div class="fr"><span>${l}</span><b>${v}</b></div>`;
   const chips = nums(r).map(n => `<i>${esc(n)}</i>`).join('') || '—';
   const fac = `<div class="fac">
@@ -853,11 +854,11 @@ function verDetalle(id) {
     <div class="fb">${fr('Nombre', esc(r.nombre))}${fr('Celular', esc(r.pais || '—'))}${fr('Correo', esc(r.correo))}
       ${fr('Rifa', pr + ' · ' + pr.slice(1) + (pr === 'x1' ? ' boleto' : ' boletos'))}${gpr ? fr('Gran premio', esc(gpr.valor)) : ''}
       ${fr('Números', `<span class="nm">${chips}</span>`)}${fr('Método', esc(metNom(r)))}${fr('Fecha', esc(fh.dia + (fh.hora !== '—' ? ' · ' + fh.hora : '')))}
-      <div class="ft"><span>Total pagado</span><b>${usd(PRECIO[pr])}</b></div>
+      <div class="ft"><span>Total pagado</span><b>${usd(totR(r))}</b></div>
       <p class="fg">¡Gracias por participar!</p></div></div>`;
   $('m-t').textContent = (r.nombre || '') + ' ';
   $('m-t').innerHTML = esc(r.nombre || '') + ` <span class="pill" style="background:${COL[e][0]};color:${COL[e][1]};vertical-align:middle;margin-left:6px">${e}</span>`;
-  $('m-b').innerHTML = `<div class="tabs"><button id="tb-c" class="on" onclick="tabDet('c')">Comprobante Binance Pay</button><button id="tb-f" onclick="tabDet('f')">Factura web</button></div>
+  $('m-b').innerHTML = `<div class="tabs"><button id="tb-c" class="on" onclick="tabDet('c')">Comprobante de pago</button><button id="tb-f" onclick="tabDet('f')">Factura web</button></div>
     <div id="tp-c">${comp}</div><div id="tp-f" hidden>${fac}</div>`;
   $('modal').classList.add('on');
 }
@@ -893,7 +894,7 @@ function drawExp() {
 }
 function buildCSV() {
   const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', ln = a => a.map(q).join(',');
-  const act = registros.filter(r => !esElim(r)), mn = mon(), P = r => PRECIO[parte(r)];
+  const act = registros.filter(r => !esElim(r)), mn = mon(), P = r => totR(r);
   const suma = (rs, e) => rs.filter(r => estado(r) === e).reduce((a, r) => a + P(r), 0), nEs = (rs, e) => rs.filter(r => estado(r) === e).length;
   const pct = (v, m) => m ? (v / m * 100).toFixed(1).replace('.0', '') + '%' : '—';
   const out = [];
