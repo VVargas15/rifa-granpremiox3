@@ -68,7 +68,7 @@ section{padding:3rem 1.25rem}
 .nb.vend{background:color-mix(in srgb,var(--cv) 18%,#fff);border-color:var(--cv);color:color-mix(in srgb,var(--cv) 55%,#000);cursor:not-allowed;opacity:.7}
 .nb.rsv{background:color-mix(in srgb,var(--cr) 15%,#fff);border-color:var(--cr);color:color-mix(in srgb,var(--cr) 55%,#000);cursor:not-allowed}
 .nb.sel{background:linear-gradient(135deg,var(--r),var(--o))!important;border-color:#FFB84D!important;color:var(--on)!important;box-shadow:0 0 0 2px #FFB84D}
-.nb.hide{display:none}
+.nb.hide,.tb.hide{display:none}
 .ley{display:flex;gap:1.25rem;flex-wrap:wrap;margin-top:1.25rem}
 .li{display:flex;align-items:center;gap:.5rem;font-size:.8rem;font-weight:700;color:var(--gr)}
 .ld{width:16px;height:16px;border-radius:5px;border:2px solid;flex-shrink:0}
@@ -210,6 +210,7 @@ footer p{font-size:.85rem;opacity:.6;font-weight:600}
 .tb.rsv{background:color-mix(in srgb,var(--cr) 15%,#fff);border-color:var(--cr);color:color-mix(in srgb,var(--cr) 55%,#000);cursor:not-allowed}
 .tb.rsv span:first-child{color:color-mix(in srgb,var(--cr) 55%,#000)}
 .wa{position:fixed;right:1rem;bottom:5.5rem;z-index:95;width:54px;height:54px;border-radius:50%;background:#25D366;color:#fff;display:none;align-items:center;justify-content:center;font-size:1.7rem;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.phr{display:flex;gap:.5rem}.phr select{flex:0 0 104px;width:104px;padding-left:.7rem;padding-right:.4rem;font-weight:800;cursor:pointer}.phr input{flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -294,7 +295,7 @@ footer p{font-size:.85rem;opacity:.6;font-weight:600}
       <div class="fc">
         <div id="fcon">
           <div class="fg"><label>Nombre completo</label><input type="text" id="ino" placeholder="Ej: Carlos Gómez"><div class="er" id="e_ino"></div></div>
-          <div class="fg"><label>Número de celular 📱</label><input type="tel" id="icel" placeholder="Ej: +57 300 123 4567"><div class="er" id="e_icel"></div></div>
+          <div class="fg"><label>Número de celular 📱</label><div class="phr"><select id="icc" aria-label="Código de país"><option value="+57" data-s="+57" data-l="🇨🇴 Colombia (+57)" selected>+57</option><option value="+52" data-s="+52" data-l="🇲🇽 México (+52)">+52</option><option value="+1" data-s="+1" data-l="🇺🇸 Estados Unidos (+1)">+1</option><option value="+34" data-s="+34" data-l="🇪🇸 España (+34)">+34</option><option value="+54" data-s="+54" data-l="🇦🇷 Argentina (+54)">+54</option><option value="+56" data-s="+56" data-l="🇨🇱 Chile (+56)">+56</option><option value="+51" data-s="+51" data-l="🇵🇪 Perú (+51)">+51</option><option value="+593" data-s="+593" data-l="🇪🇨 Ecuador (+593)">+593</option><option value="+58" data-s="+58" data-l="🇻🇪 Venezuela (+58)">+58</option><option value="+507" data-s="+507" data-l="🇵🇦 Panamá (+507)">+507</option><option value="+506" data-s="+506" data-l="🇨🇷 Costa Rica (+506)">+506</option><option value="+502" data-s="+502" data-l="🇬🇹 Guatemala (+502)">+502</option><option value="+504" data-s="+504" data-l="🇭🇳 Honduras (+504)">+504</option><option value="+503" data-s="+503" data-l="🇸🇻 El Salvador (+503)">+503</option><option value="+505" data-s="+505" data-l="🇳🇮 Nicaragua (+505)">+505</option><option value="+591" data-s="+591" data-l="🇧🇴 Bolivia (+591)">+591</option><option value="+595" data-s="+595" data-l="🇵🇾 Paraguay (+595)">+595</option><option value="+598" data-s="+598" data-l="🇺🇾 Uruguay (+598)">+598</option><option value="+55" data-s="+55" data-l="🇧🇷 Brasil (+55)">+55</option><option value="+1" data-s="+1" data-l="🇩🇴 Rep. Dominicana (+1)">+1</option><option value="+1" data-s="+1" data-l="🇵🇷 Puerto Rico (+1)">+1</option><option value="+53" data-s="+53" data-l="🇨🇺 Cuba (+53)">+53</option><option value="+1" data-s="+1" data-l="🇨🇦 Canadá (+1)">+1</option><option value="+44" data-s="+44" data-l="🇬🇧 Reino Unido (+44)">+44</option><option value="+33" data-s="+33" data-l="🇫🇷 Francia (+33)">+33</option><option value="+39" data-s="+39" data-l="🇮🇹 Italia (+39)">+39</option><option value="+49" data-s="+49" data-l="🇩🇪 Alemania (+49)">+49</option></select><input type="tel" id="icel" inputmode="numeric" autocomplete="tel-national" placeholder="300 123 4567"></div><div class="er" id="e_icel"></div></div>
           <div class="fg"><label>Correo electrónico</label><input type="email" id="ico" placeholder="tucorreo@gmail.com"><div class="er" id="e_ico"></div></div>
           <div class="fg"><label>Números elegidos</label><div class="ns" id="numsel">Elige tus números arriba primero</div><div class="er" id="e_num"></div></div>
           <button class="br" onclick="registrar()">✅ Registrarse y proceder al pago</button>
@@ -609,6 +610,7 @@ function paintSingles(){
     nbs[i].disabled=(t!=='disp');
     c.toggle('sel',sels.indexOf(n)>-1&&t==='disp');
   }
+  aplicarFiltro();
 }
 // ── talonario (x2..x5) ──
 function buildTalon(){
@@ -641,12 +643,12 @@ function syncTrio(){
     else if(t.some(function(x){return st3[x]==='res';}))c.add('rsv');
     else if(t.every(function(x){return sels.indexOf(x)>-1;}))c.add('sel');
   }
+  aplicarFiltro();
 }
 function modoUI(){
   var multi=K>1;
   document.getElementById('tw').classList.toggle('on',multi);
   document.getElementById('grid').style.display=multi?'none':'';
-  var f=document.querySelector('.ft');if(f)f.style.display=multi?'none':'';
   if(multi)buildTalon();else buildGrid();
   recount();updBar();
 }
@@ -669,7 +671,7 @@ function setMax(n,btn){
   sels.length=0;K=n;
   var xs=document.querySelectorAll('.xb');for(var i=0;i<xs.length;i++)xs[i].classList.remove('on');
   if(btn)btn.classList.add('on');
-  var f=document.querySelector('.fb');
+  FILTRO='todos';
   var fbs=document.querySelectorAll('.fb');for(var i=0;i<fbs.length;i++)fbs[i].classList.toggle('on',i===0);
   modoUI();
 }
@@ -696,10 +698,19 @@ function updBar(){
   document.getElementById('numsel').classList.remove('bad');var en=document.getElementById('e_num');if(en){en.textContent='';en.classList.remove('on');}
 }
 
+var FILTRO='todos';
+function aplicarFiltro(){
+  var els=document.querySelectorAll(K>1?'#tgrid .tb':'#grid .nb');
+  for(var i=0;i<els.length;i++){
+    var c=els[i].classList, est=c.contains('vend')?'vend':(c.contains('rsv')?'rsv':'disp');
+    c.toggle('hide',FILTRO!=='todos'&&est!==FILTRO);
+  }
+}
 function filtrar(tipo,btn){
-  var fbs=document.querySelectorAll('.fb');for(var i=0;i<fbs.length;i++)fbs[i].classList.remove('on');btn.classList.add('on');
-  var nbs=document.querySelectorAll('#grid .nb');
-  for(var i=0;i<nbs.length;i++){if(tipo==='todos')nbs[i].classList.remove('hide');else nbs[i].classList.toggle('hide',!nbs[i].classList.contains(tipo));}
+  FILTRO=tipo;
+  var fbs=document.querySelectorAll('.fb');for(var i=0;i<fbs.length;i++)fbs[i].classList.remove('on');
+  if(btn)btn.classList.add('on');
+  aplicarFiltro();
 }
 
 function limpiarErrores(){
@@ -712,6 +723,14 @@ function limpiarErrores(){
     this.classList.remove('bad');var e=document.getElementById('e_'+id);e.textContent='';e.classList.remove('on');
   });
 });
+document.getElementById('icel').addEventListener('input',function(){var v=this.value.replace(/[^\d\s]/g,'');if(v!==this.value)this.value=v;});
+(function(){
+  var sel=document.getElementById('icc');
+  function largo(){for(var i=0;i<sel.options.length;i++)sel.options[i].textContent=sel.options[i].getAttribute('data-l');}
+  function corto(){for(var i=0;i<sel.options.length;i++)sel.options[i].textContent=sel.options[i].getAttribute('data-s');}
+  sel.addEventListener('mousedown',largo);sel.addEventListener('focus',largo);
+  sel.addEventListener('change',corto);sel.addEventListener('blur',corto);
+})();
 // La barra flotante solo se ve mientras eliges números
 function visBarra(){
   var bar=document.getElementById('selbar'),sec=document.getElementById('numeros'),reg=document.getElementById('registro');
@@ -726,14 +745,13 @@ function irReg(){document.getElementById('registro').scrollIntoView({behavior:'s
 
 async function registrar(){
   var n=document.getElementById('ino').value.trim();
-  var p=document.getElementById('icel').value.trim();
+  var cc=document.getElementById('icc').value, dg=document.getElementById('icel').value.replace(/\D/g,'').replace(/^0+/,''), p=cc+' '+dg;
   var c=document.getElementById('ico').value.trim();
   var ok=true,first=null;
   function bad(inp,err,msg){if(inp)inp.classList.add('bad');var e=document.getElementById(err);e.textContent='⚠️ '+msg;e.classList.add('on');ok=false;if(!first)first=inp||document.getElementById('numsel');}
   limpiarErrores();
   if(n.length<3||!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ][A-Za-zÁÉÍÓÚÜÑáéíóúüñ' .-]*$/.test(n))bad(document.getElementById('ino'),'e_ino','Escribe tu nombre completo (solo letras).');
-  var tel=p.replace(/[\s\-().]/g,'');
-  if(!/^\+?\d{7,15}$/.test(tel))bad(document.getElementById('icel'),'e_icel','Número de celular no válido. Ej: +57 300 123 4567');
+  if(dg.length<6||dg.length>12)bad(document.getElementById('icel'),'e_icel','Escribe solo tu número, sin el código del país. Ej: 300 123 4567');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c))bad(document.getElementById('ico'),'e_ico','Correo no válido. Ej: tucorreo@gmail.com');
   if(!sels.length){document.getElementById('numsel').classList.add('bad');bad(null,'e_num','Elige al menos un número arriba.');}
   if(!ok){if(first){first.scrollIntoView({behavior:'smooth',block:'center'});if(first.focus&&first.tagName==='INPUT')first.focus();}return;}
@@ -841,7 +859,7 @@ function mostrarFactura(enviado){
   document.getElementById('fx_tot').textContent=fmt(regData.total);
   var st=document.getElementById('fx_st');
   if(enviado){st.textContent='⏳ Comprobante recibido · en verificación';st.style.cssText='';}
-  else{st.textContent='⚠️ No se pudo enviar al servidor · envía una captura de esta factura al organizador';st.style.cssText='background:#FFE4E4;border-color:#FF9090;color:#CC3333;border-radius:14px;line-height:1.4';}
+  else{st.textContent='⚠️ No se pudo confirmar tu comprobante (si tu reserva venció, otra persona pudo tomar tus números) · escríbenos por WhatsApp con una captura de esta factura';st.style.cssText='background:#FFE4E4;border-color:#FF9090;color:#CC3333;border-radius:14px;line-height:1.4';}
   var im=document.getElementById('fx_img'),pw=document.getElementById('fx_pw');
   if(compImg&&compImg.indexOf('data:')===0){im.src=compImg;pw.style.display='flex';}else pw.style.display='none';
   document.getElementById('pgComp').classList.remove('on');
