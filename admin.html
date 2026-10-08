@@ -443,6 +443,7 @@ async function apiBorrar(id) {
   const res = await fetch(SCRIPT_URL + '?action=delete&id=' + encodeURIComponent(id) + '&key=' + encodeURIComponent(KEY), { redirect: 'follow' });
   const json = await res.json(); if (json.ok === false) throw new Error(json.error || 'No se pudo borrar');
   registros = registros.filter(x => String(x.id) !== String(id));
+  return json;
 }
 async function setEstado(id, est, msg) {
   try { await apiEstado(id, est); render(); toast(msg || (est === 'publicado' ? 'Pago aprobado' : 'Registro rechazado')); }
@@ -453,7 +454,7 @@ function borrar(id) { const r = registros.find(x => String(x.id) === String(id))
 function restaurar(id) { const r = registros.find(x => String(x.id) === String(id)); if (r) setEstado(id, prevEst(r).split(':')[1] || 'pendiente', 'Registro restaurado'); }
 async function purgar(id) {
   if (!confirm('¿Borrar este registro para siempre? No se puede deshacer.')) return;
-  try { await apiBorrar(id); render(); toast('Registro borrado definitivamente'); } catch (e) { toast('Error: ' + e.message, true); }
+  try { const j = await apiBorrar(id); render(); toast('Registro borrado definitivamente' + (j && j.drive ? ' · Drive: ' + j.drive : ' · Drive: el script no respondió con el estado del archivo (¿publicaste la nueva versión?)'), !(j && j.drive)); } catch (e) { toast('Error: ' + e.message, true); }
 }
 async function borrarTodo() {
   const hard = active === 'elim', modal = /^x\d$/.test(active);
@@ -465,13 +466,13 @@ async function borrarTodo() {
     const t = prompt('Para confirmar, escribe BORRAR'); if (t === null) return;
     if (t.trim().toUpperCase() !== 'BORRAR') return toast('No se borró nada: la palabra no coincide', true);
   } else if (!confirm('Se moverán ' + n + ' de ' + (modal ? 'Boletos ' + active : 'todas las modalidades') + ' a Eliminados.\nPodrás restaurarlos cuando quieras.\n\n¿Continuar?')) return;
-  const btn = $('del-all'); btn.disabled = true; let ok = 0, fail = 0;
+  const btn = $('del-all'); btn.disabled = true; let ok = 0, fail = 0, dr = 0;
   for (const id of ids) {
-    try { if (hard) await apiBorrar(id); else await apiEstado(id, 'eliminado:' + prevEst(registros.find(x => String(x.id) === String(id)))); ok++; } catch (e) { fail++; }
+    try { if (hard) { const j = await apiBorrar(id); if (j && /papelera/.test(j.drive || '')) dr++; } else await apiEstado(id, 'eliminado:' + prevEst(registros.find(x => String(x.id) === String(id)))); ok++; } catch (e) { fail++; }
     btn.innerHTML = ic('trash', 16) + 'Procesando ' + (ok + fail) + '/' + ids.length;
   }
   btn.disabled = false; render();
-  toast(fail ? ok + ' listos, ' + fail + ' con error' : ok + (hard ? ' borrados definitivamente' : ' movidos a Eliminados'), !!fail);
+  toast(fail ? ok + ' listos, ' + fail + ' con error' : ok + (hard ? ' borrados definitivamente · ' + dr + ' comprobante(s) de Drive a la papelera' : ' movidos a Eliminados'), !!fail);
 }
 
 // ── pintar ──
