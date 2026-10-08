@@ -437,7 +437,7 @@ var st1={}, st3={}; // st1: números individuales (x1) · st3: combos (x2..x5)
 var DEF={
   sitio:{nombre:'Gran Rifa de Premios',etiqueta:'🔥 CUPOS LIMITADOS',subtitulo:'¡Elige tu número de la suerte y gana hasta $1.000 USD!',moneda:'USD',color:'#1D4ED8',texto:'#FFFFFF',whatsapp:'',
     premiosTitulo:'¿Qué puedes ganar?',premiosSub:'Premios principales para los ganadores',
-    premios:[{puesto:'1.º Lugar (Gran Premio)',valor:'$500 USD',mod:'x1'},{puesto:'1.º Lugar (Gran Premio)',valor:'$1.000 USD',mod:'x3'}]},
+    premios:[{puesto:'Gran Premio x1',valor:'$500 USD',mod:'x1'},{puesto:'Gran Premio x3',valor:'$1.000 USD',mod:'x3'}]},
   pago:{metodos:[]},
   nums:{mods:{x1:{on:true,cifras:2,precio:25},x2:{on:false,cifras:3,precio:40},x3:{on:true,cifras:3,precio:50},x4:{on:false,cifras:3,precio:60},x5:{on:false,cifras:3,precio:75}},
     cols:10,cDisp:'#dde',cRes:'#FFC107',cVen:'#FF9090',reserva:24}
@@ -497,10 +497,18 @@ function aplicar(){
   renderMetodos(); sels.length=0; modoUI();
 }
 async function cargarConfig(){
+  var igual=false;
   try{
     var j=await (await fetch(GSHEET_URL+'?action=getconfig',{redirect:'follow'})).json();
-    if(j&&j.ok&&j.data){CFG=mixC(DEF,j.data);}
+    if(j&&j.ok&&j.data){
+      var raw=JSON.stringify(j.data); igual=(raw===_cfgRaw);
+      CFG=mixC(DEF,j.data);
+      try{localStorage.setItem(CFG_KEY,raw);}
+      catch(e){try{var d2=JSON.parse(raw);((d2.pago&&d2.pago.metodos)||[]).forEach(function(m){m.qr='';});localStorage.setItem(CFG_KEY,JSON.stringify(d2));}catch(e2){}}
+      _cfgRaw=raw;
+    }
   }catch(e){console.warn('[Config] no se pudo leer, se usan valores por defecto',e);}
+  if(igual){cargarEstado();return;}      // misma config que ya se mostró: no repintar (no pierdes los números que ya elegiste)
   aplicar(); cargarEstado();
 }
 
@@ -893,6 +901,8 @@ var obs=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isInte
 document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
 
 // ── arranque: pinta con valores por defecto y luego aplica la configuración del panel ──
+var CFG_KEY='rifa_cfg_pub', _cfgRaw=null;
+try{_cfgRaw=localStorage.getItem(CFG_KEY);if(_cfgRaw)CFG=mixC(DEF,JSON.parse(_cfgRaw));}catch(e){_cfgRaw=null;}
 aplicar();
 cargarConfig();
 setInterval(cargarEstado,20000);   // refresca cada 20 s las reservas/ventas de otros usuarios
