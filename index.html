@@ -216,6 +216,7 @@ footer p{font-size:.85rem;opacity:.6;font-weight:600}
 .tb.rsv span:first-child{color:color-mix(in srgb,var(--cr) 55%,#000)}
 .wa{position:fixed;right:1rem;bottom:5.5rem;z-index:95;width:54px;height:54px;border-radius:50%;background:#25D366;color:#fff;display:none;align-items:center;justify-content:center;font-size:1.7rem;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .phr{display:flex;gap:.5rem}.phr select{flex:0 0 104px;width:104px;padding-left:.7rem;padding-right:.4rem;font-weight:800;cursor:pointer}.phr input{flex:1;min-width:0}
+.lsel{font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;color:var(--tx);background:#fff;border:2px solid var(--bord);border-radius:50px;padding:.35rem .7rem;cursor:pointer;max-width:150px}.lsel:focus{outline:2px solid var(--r)}
 .logo-i{height:38px;width:auto;vertical-align:middle;margin-right:.4rem}.nl,.pgn .lo{display:flex;align-items:center}.pgn .logo-i{height:34px}
 </style>
 <script>try{var q=(localStorage.getItem('rifa_color')||'').split('|');if(/^#[0-9a-f]{6}$/i.test(q[0])){var h=q[0].slice(1),c=[0,2,4].map(function(i){return parseInt(h.substr(i,2),16)}),m=function(w){return '#'+c.map(function(v){return Math.round(v+(255-v)*w).toString(16).padStart(2,'0')}).join('')},st=document.documentElement.style;st.setProperty('--r',q[0]);st.setProperty('--o',m(.22));st.setProperty('--on',/^#[0-9a-f]{6}$/i.test(q[1])?q[1]:'#FFFFFF');st.setProperty('--bg',m(.94));st.setProperty('--tint',m(.86));st.setProperty('--bord',m(.8))}}catch(e){}</script>
@@ -230,6 +231,7 @@ footer p{font-size:.85rem;opacity:.6;font-weight:600}
     <li><a href="#numeros">Números</a></li>
     <li><a href="#registro">Registro</a></li>
   </ul>
+  <select id="lang" class="lsel" aria-label="Idioma / Language" onchange="setLang(this.value)"><option value="es">🇪🇸 Español</option><option value="en">🇬🇧 English</option><option value="pt">🇧🇷 Português</option><option value="fr">🇫🇷 Français</option><option value="de">🇩🇪 Deutsch</option><option value="it">🇮🇹 Italiano</option></select>
 </nav>
 
 <div class="hero" id="inicio">
@@ -439,6 +441,179 @@ var GSHEET_URL='https://script.google.com/macros/s/AKfycbyqLkaDurNO2-pQnvIaG_tMd
 var sels=[], K=1, regData={}, compImg=null, _metodo='binance', _metIdx=0;
 var st1={}, st3={}; // st1: números individuales (x1) · st3: combos (x2..x5)
 
+// ── IDIOMAS: es · en · pt (Brasil) · fr · de · it ──
+// El texto base está en español; el diccionario traduce desde el español. Si el administrador personaliza un texto en el panel, se muestra tal cual.
+var LANGS={es:'Español',en:'English',pt:'Português (Brasil)',fr:'Français',de:'Deutsch',it:'Italiano'};
+var LOC={es:'es-CO',en:'en-US',pt:'pt-BR',fr:'fr-FR',de:'de-DE',it:'it-IT'};
+var LIDX={en:0,pt:1,fr:2,de:3,it:4}, LANG='es';
+var I18N={
+// menú y portada
+'Inicio':['Home','Início','Accueil','Start','Home'],
+'Premio':['Prize','Prêmio','Prix','Preis','Premio'],
+'Números':['Numbers','Números','Numéros','Nummern','Numeri'],
+'Registro':['Sign up','Cadastro','Inscription','Anmeldung','Registrazione'],
+'Gran Rifa de Premios':['Grand Prize Raffle','Grande Rifa de Prêmios','Grande Tombola des Prix','Große Preisverlosung','Grande Lotteria dei Premi'],
+'🔥 CUPOS LIMITADOS':['🔥 LIMITED SPOTS','🔥 VAGAS LIMITADAS','🔥 PLACES LIMITÉES','🔥 BEGRENZTE PLÄTZE','🔥 POSTI LIMITATI'],
+'¡Elige tu número de la suerte y gana hasta $1.000 USD!':['Pick your lucky number and win up to $1.000 USD!','Escolha seu número da sorte e ganhe até $1.000 USD!','Choisissez votre numéro porte-bonheur et gagnez jusqu\'à 1.000 $ USD !','Wähle deine Glückszahl und gewinne bis zu $1.000 USD!','Scegli il tuo numero fortunato e vinci fino a $1.000 USD!'],
+'🎟️ Participa ya':['🎟️ Join now','🎟️ Participe já','🎟️ Participez maintenant','🎟️ Jetzt mitmachen','🎟️ Partecipa ora'],
+'boleto':['ticket','bilhete','billet','Los','biglietto'],
+'boletos':['tickets','bilhetes','billets','Lose','biglietti'],
+'Premio:':['Prize:','Prêmio:','Prix :','Preis:','Premio:'],
+'Boletos':['Tickets','Bilhetes','Billets','Lose','Biglietti'],
+// premios
+'🏆 Premio':['🏆 Prize','🏆 Prêmio','🏆 Prix','🏆 Preis','🏆 Premio'],
+'¿Qué puedes ganar?':['What can you win?','O que você pode ganhar?','Que pouvez-vous gagner ?','Was kannst du gewinnen?','Cosa puoi vincere?'],
+'Premios principales para los ganadores':['Main prizes for the winners','Principais prêmios para os ganhadores','Principaux prix pour les gagnants','Hauptpreise für die Gewinner','Premi principali per i vincitori'],
+'Gran Premio x1':['Grand Prize x1','Grande Prêmio x1','Grand Prix x1','Hauptpreis x1','Primo Premio x1'],
+'Gran Premio x3':['Grand Prize x3','Grande Prêmio x3','Grand Prix x3','Hauptpreis x3','Primo Premio x3'],
+// números
+'🎟️ Números':['🎟️ Numbers','🎟️ Números','🎟️ Numéros','🎟️ Nummern','🎟️ Numeri'],
+'Elige tu número':['Choose your number','Escolha seu número','Choisissez votre numéro','Wähle deine Nummer','Scegli il tuo numero'],
+'¿Cuántos números quieres elegir?':['How many numbers do you want to choose?','Quantos números você quer escolher?','Combien de numéros voulez-vous choisir ?','Wie viele Nummern möchtest du wählen?','Quanti numeri vuoi scegliere?'],
+'¿Cuántos?':['How many?','Quantos?','Combien ?','Wie viele?','Quanti?'],
+'Tus números':['Your numbers','Seus números','Vos numéros','Deine Nummern','I tuoi numeri'],
+'Registrarme':['Sign me up','Cadastrar-me','M\'inscrire','Anmelden','Registrami'],
+'Disponibles':['Available','Disponíveis','Disponibles','Verfügbar','Disponibili'],
+'Reservados':['Reserved','Reservados','Réservés','Reserviert','Riservati'],
+'Vendidos':['Sold','Vendidos','Vendus','Verkauft','Venduti'],
+'Todos':['All','Todos','Tous','Alle','Tutti'],
+'Disponible':['Available','Disponível','Disponible','Verfügbar','Disponibile'],
+'Reservado':['Reserved','Reservado','Réservé','Reserviert','Riservato'],
+'Vendido':['Sold','Vendido','Vendu','Verkauft','Venduto'],
+'Talonario x{0}':['Ticket book x{0}','Talão x{0}','Carnet x{0}','Losblock x{0}','Blocchetto x{0}'],
+'Cada boleto incluye {0} números entre el {1} y el {2}. Haz clic o toca un boleto para seleccionarlo.':['Each ticket includes {0} numbers between {1} and {2}. Click or tap a ticket to select it.','Cada bilhete inclui {0} números entre {1} e {2}. Clique ou toque em um bilhete para selecioná-lo.','Chaque billet comprend {0} numéros entre {1} et {2}. Cliquez ou touchez un billet pour le sélectionner.','Jedes Los enthält {0} Nummern zwischen {1} und {2}. Klicke oder tippe auf ein Los, um es auszuwählen.','Ogni biglietto include {0} numeri tra {1} e {2}. Clicca o tocca un biglietto per selezionarlo.'],
+// registro
+'📋 Registro':['📋 Sign up','📋 Cadastro','📋 Inscription','📋 Anmeldung','📋 Registrazione'],
+'Regístrate para participar':['Sign up to participate','Cadastre-se para participar','Inscrivez-vous pour participer','Melde dich an, um teilzunehmen','Registrati per partecipare'],
+'Déjanos tus datos y te avisaremos si resultas ganador 🏆':['Leave us your details and we\'ll let you know if you win 🏆','Deixe seus dados e avisaremos se você ganhar 🏆','Laissez-nous vos coordonnées et nous vous préviendrons si vous gagnez 🏆','Hinterlasse deine Daten und wir informieren dich, falls du gewinnst 🏆','Lasciaci i tuoi dati e ti avviseremo se vinci 🏆'],
+'Nombre completo':['Full name','Nome completo','Nom complet','Vollständiger Name','Nome completo'],
+'Ej: Carlos Gómez':['E.g. John Smith','Ex: Carlos Gómez','Ex : Jean Dupont','z. B. Max Mustermann','Es. Mario Rossi'],
+'Número de celular 📱':['Mobile number 📱','Número de celular 📱','Numéro de portable 📱','Handynummer 📱','Numero di cellulare 📱'],
+'Código de país':['Country code','Código do país','Indicatif du pays','Ländervorwahl','Prefisso internazionale'],
+'Correo electrónico':['Email','E-mail','E-mail','E-Mail','E-mail'],
+'tucorreo@gmail.com':['youremail@gmail.com','seuemail@gmail.com','votreemail@gmail.com','deinemail@gmail.com','tuaemail@gmail.com'],
+'Números elegidos':['Chosen numbers','Números escolhidos','Numéros choisis','Gewählte Nummern','Numeri scelti'],
+'Elige tus números arriba primero':['Choose your numbers above first','Escolha seus números acima primeiro','Choisissez d\'abord vos numéros ci-dessus','Wähle zuerst oben deine Nummern','Scegli prima i tuoi numeri qui sopra'],
+'✅ Registrarse y proceder al pago':['✅ Sign up and proceed to payment','✅ Cadastrar e ir para o pagamento','✅ S\'inscrire et passer au paiement','✅ Anmelden und zur Zahlung','✅ Registrati e procedi al pagamento'],
+'Reservando…':['Reserving…','Reservando…','Réservation…','Reservierung…','Prenotazione…'],
+'Registro guardado':['Registration saved','Cadastro salvo','Inscription enregistrée','Anmeldung gespeichert','Registrazione salvata'],
+'Registro guardado. Abriendo pago en 1 segundo...':['Registration saved. Opening payment in 1 second...','Cadastro salvo. Abrindo pagamento em 1 segundo...','Inscription enregistrée. Ouverture du paiement dans 1 seconde...','Anmeldung gespeichert. Zahlung öffnet sich in 1 Sekunde...','Registrazione salvata. Apertura del pagamento tra 1 secondo...'],
+'Abriendo pago en 1 segundo...':['Opening payment in 1 second...','Abrindo pagamento em 1 segundo...','Ouverture du paiement dans 1 seconde...','Zahlung öffnet sich in 1 Sekunde...','Apertura del pagamento tra 1 secondo...'],
+'Notificación por correo':['Email notification','Notificação por e-mail','Notification par e-mail','E-Mail-Benachrichtigung','Notifica via e-mail'],
+'Si tu número resulta ganador, te notificaremos de inmediato.':['If your number wins, we\'ll notify you right away.','Se o seu número for premiado, avisaremos imediatamente.','Si votre numéro gagne, nous vous préviendrons immédiatement.','Wenn deine Nummer gewinnt, benachrichtigen wir dich sofort.','Se il tuo numero vince, ti avviseremo subito.'],
+'Reserva inmediata':['Instant reservation','Reserva imediata','Réservation immédiate','Sofortige Reservierung','Prenotazione immediata'],
+'Al completarlo, tu número quedará apartado en el sistema.':['Once completed, your number will be held in the system.','Ao concluir, seu número ficará reservado no sistema.','Une fois terminé, votre numéro sera mis de côté dans le système.','Nach Abschluss wird deine Nummer im System reserviert.','Al termine, il tuo numero verrà riservato nel sistema.'],
+'Pago seguro':['Secure payment','Pagamento seguro','Paiement sécurisé','Sichere Zahlung','Pagamento sicuro'],
+'Tras el registro podrás escanear el código QR para realizar tu pago.':['After signing up you can scan the QR code to make your payment.','Após o cadastro você poderá escanear o QR code para pagar.','Après l\'inscription, vous pourrez scanner le code QR pour payer.','Nach der Anmeldung kannst du den QR-Code scannen, um zu bezahlen.','Dopo la registrazione potrai scansionare il codice QR per pagare.'],
+'Contacto vía WhatsApp':['Contact via WhatsApp','Contato via WhatsApp','Contact via WhatsApp','Kontakt über WhatsApp','Contatto via WhatsApp'],
+'También te contactaremos a tu número celular si obtienes el premio.':['We\'ll also contact you on your mobile number if you win.','Também entraremos em contato pelo seu celular se você ganhar.','Nous vous contacterons aussi sur votre portable si vous gagnez.','Wir kontaktieren dich bei einem Gewinn auch über deine Handynummer.','Ti contatteremo anche sul tuo cellulare se vinci.'],
+'Sorteo transparente y verificable · Buena suerte':['Transparent and verifiable draw · Good luck','Sorteio transparente e verificável · Boa sorte','Tirage transparent et vérifiable · Bonne chance','Transparente und überprüfbare Ziehung · Viel Glück','Estrazione trasparente e verificabile · Buona fortuna'],
+// errores
+'Escribe tu nombre completo (solo letras).':['Enter your full name (letters only).','Escreva seu nome completo (apenas letras).','Saisissez votre nom complet (lettres uniquement).','Gib deinen vollständigen Namen ein (nur Buchstaben).','Scrivi il tuo nome completo (solo lettere).'],
+'Escribe solo tu número, sin el código del país. Ej: 300 123 4567':['Enter only your number, without the country code. E.g. 300 123 4567','Escreva apenas seu número, sem o código do país. Ex: 300 123 4567','Saisissez uniquement votre numéro, sans l\'indicatif du pays. Ex : 300 123 4567','Gib nur deine Nummer ohne Ländervorwahl ein. z. B. 300 123 4567','Scrivi solo il tuo numero, senza il prefisso del paese. Es. 300 123 4567'],
+'Correo no válido. Ej: tucorreo@gmail.com':['Invalid email. E.g. youremail@gmail.com','E-mail inválido. Ex: seuemail@gmail.com','E-mail non valide. Ex : votreemail@gmail.com','Ungültige E-Mail. z. B. deinemail@gmail.com','E-mail non valida. Es. tuaemail@gmail.com'],
+'Elige al menos un número arriba.':['Choose at least one number above.','Escolha pelo menos um número acima.','Choisissez au moins un numéro ci-dessus.','Wähle oben mindestens eine Nummer.','Scegli almeno un numero qui sopra.'],
+'Alguno de esos números acaba de ser tomado por otra persona. Elige otros.':['One of those numbers was just taken by someone else. Please choose others.','Um desses números acabou de ser escolhido por outra pessoa. Escolha outros.','L\'un de ces numéros vient d\'être pris par quelqu\'un d\'autre. Choisissez-en d\'autres.','Eine dieser Nummern wurde gerade von jemand anderem gewählt. Bitte wähle andere.','Uno di quei numeri è appena stato preso da un\'altra persona. Scegline altri.'],
+'No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.':['Could not connect to the server. Check your connection and try again.','Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.','Impossible de se connecter au serveur. Vérifiez votre connexion et réessayez.','Verbindung zum Server fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.','Impossibile connettersi al server. Controlla la connessione e riprova.'],
+// pago
+'← Volver':['← Back','← Voltar','← Retour','← Zurück','← Indietro'],
+'💳 Realiza tu pago':['💳 Make your payment','💳 Faça seu pagamento','💳 Effectuez votre paiement','💳 Bezahle jetzt','💳 Effettua il pagamento'],
+'Elige tu método y sigue los pasos':['Choose your method and follow the steps','Escolha seu método e siga os passos','Choisissez votre méthode et suivez les étapes','Wähle deine Methode und folge den Schritten','Scegli il metodo e segui i passaggi'],
+'Elige tu método y sigue los pasos · Tu reserva dura {0} horas sin pago':['Choose your method and follow the steps · Your reservation lasts {0} hours without payment','Escolha seu método e siga os passos · Sua reserva dura {0} horas sem pagamento','Choisissez votre méthode et suivez les étapes · Votre réservation dure {0} heures sans paiement','Wähle deine Methode und folge den Schritten · Deine Reservierung gilt {0} Stunden ohne Zahlung','Scegli il metodo e segui i passaggi · La tua prenotazione dura {0} ore senza pagamento'],
+'📋 Resumen de tu registro':['📋 Your registration summary','📋 Resumo do seu cadastro','📋 Récapitulatif de votre inscription','📋 Zusammenfassung deiner Anmeldung','📋 Riepilogo della registrazione'],
+'👤 Nombre':['👤 Name','👤 Nome','👤 Nom','👤 Name','👤 Nome'],
+'📱 Celular':['📱 Mobile','📱 Celular','📱 Portable','📱 Handy','📱 Cellulare'],
+'📧 Correo':['📧 Email','📧 E-mail','📧 E-mail','📧 E-Mail','📧 E-mail'],
+'🎟️ Números':['🎟️ Numbers','🎟️ Números','🎟️ Numéros','🎟️ Nummern','🎟️ Numeri'],
+'💵 Total':['💵 Total','💵 Total','💵 Total','💵 Gesamt','💵 Totale'],
+'Abre tu app Binance':['Open your Binance app','Abra seu app Binance','Ouvrez votre application Binance','Öffne deine Binance-App','Apri la tua app Binance'],
+'Inicia sesión en tu cuenta Binance':['Log in to your Binance account','Entre na sua conta Binance','Connectez-vous à votre compte Binance','Melde dich in deinem Binance-Konto an','Accedi al tuo account Binance'],
+'Toca Pay → Enviar':['Tap Pay → Send','Toque em Pay → Enviar','Touchez Pay → Envoyer','Tippe auf Pay → Senden','Tocca Pay → Invia'],
+'Escanea el QR o busca el alias Lu_ayuda':['Scan the QR or search the alias Lu_ayuda','Escaneie o QR ou busque o alias Lu_ayuda','Scannez le QR ou cherchez l\'alias Lu_ayuda','Scanne den QR oder suche den Alias Lu_ayuda','Scansiona il QR o cerca l\'alias Lu_ayuda'],
+'Envía el monto exacto':['Send the exact amount','Envie o valor exato','Envoyez le montant exact','Sende den genauen Betrag','Invia l\'importo esatto'],
+'Paga':['Pay','Pague','Payez','Zahle','Paga'],
+'Toca "Enviar"':['Tap "Send"','Toque em "Enviar"','Touchez « Envoyer »','Tippe auf „Senden“','Tocca "Invia"'],
+'Sube el comprobante para confirmar':['Upload the receipt to confirm','Envie o comprovante para confirmar','Téléversez le justificatif pour confirmer','Lade den Zahlungsbeleg zur Bestätigung hoch','Carica la ricevuta per confermare'],
+'Realiza la transferencia y toca el botón Siguiente 👇':['Make the transfer and tap the Next button 👇','Faça a transferência e toque no botão Próximo 👇','Effectuez le virement et touchez le bouton Suivant 👇','Führe die Überweisung durch und tippe auf Weiter 👇','Effettua il bonifico e tocca il pulsante Avanti 👇'],
+'Escanea o copia 👇':['Scan or copy 👇','Escaneie ou copie 👇','Scannez ou copiez 👇','Scannen oder kopieren 👇','Scansiona o copia 👇'],
+'Ya pagué — Siguiente →':['I\'ve paid — Next →','Já paguei — Próximo →','J\'ai payé — Suivant →','Ich habe bezahlt — Weiter →','Ho pagato — Avanti →'],
+'Toca cuando hayas realizado el pago':['Tap once you have made the payment','Toque quando tiver feito o pagamento','Touchez une fois le paiement effectué','Tippe, sobald du bezahlt hast','Tocca quando hai effettuato il pagamento'],
+'Abre tu app o banca':['Open your app or bank','Abra seu app ou banco','Ouvrez votre application ou votre banque','Öffne deine App oder Banking','Apri la tua app o banca'],
+'Entra a {0}':['Go to {0}','Acesse {0}','Allez sur {0}','Öffne {0}','Vai su {0}'],
+'Envía el pago':['Send the payment','Envie o pagamento','Envoyez le paiement','Sende die Zahlung','Invia il pagamento'],
+'Escanea el QR o envía a':['Scan the QR or send to','Escaneie o QR ou envie para','Scannez le QR ou envoyez à','Scanne den QR oder sende an','Scansiona il QR o invia a'],
+'Envía a':['Send to','Envie para','Envoyez à','Sende an','Invia a'],
+'Monto exacto':['Exact amount','Valor exato','Montant exact','Genauer Betrag','Importo esatto'],
+'Guarda el comprobante':['Save the receipt','Guarde o comprovante','Conservez le justificatif','Speichere den Beleg','Conserva la ricevuta'],
+'Tómale captura y súbela en el siguiente paso':['Take a screenshot and upload it in the next step','Tire um print e envie no próximo passo','Faites une capture d\'écran et téléversez-la à l\'étape suivante','Mache einen Screenshot und lade ihn im nächsten Schritt hoch','Fai uno screenshot e caricalo nel passaggio successivo'],
+'Copia los datos 👇':['Copy the details 👇','Copie os dados 👇','Copiez les informations 👇','Daten kopieren 👇','Copia i dati 👇'],
+'Copiar':['Copy','Copiar','Copier','Kopieren','Copia'],
+'¡Copiado!':['Copied!','Copiado!','Copié !','Kopiert!','Copiato!'],
+// comprobante
+'Sube tu comprobante':['Upload your receipt','Envie seu comprovante','Téléversez votre justificatif','Lade deinen Zahlungsbeleg hoch','Carica la tua ricevuta'],
+'Sube el comprobante de tu pago en {0}':['Upload the receipt of your {0} payment','Envie o comprovante do seu pagamento em {0}','Téléversez le justificatif de votre paiement via {0}','Lade den Beleg deiner Zahlung über {0} hoch','Carica la ricevuta del tuo pagamento su {0}'],
+'Sube el comprobante de tu pago':['Upload your payment receipt','Envie o comprovante do seu pagamento','Téléversez le justificatif de votre paiement','Lade deinen Zahlungsbeleg hoch','Carica la ricevuta del tuo pagamento'],
+'Toca aquí para subir tu screenshot':['Tap here to upload your screenshot','Toque aqui para enviar seu print','Touchez ici pour téléverser votre capture','Tippe hier, um deinen Screenshot hochzuladen','Tocca qui per caricare il tuo screenshot'],
+'PNG o JPG del comprobante de pago':['PNG or JPG of the payment receipt','PNG ou JPG do comprovante de pagamento','PNG ou JPG du justificatif de paiement','PNG oder JPG des Zahlungsbelegs','PNG o JPG della ricevuta di pagamento'],
+'Quitar imagen':['Remove image','Remover imagem','Retirer l\'image','Bild entfernen','Rimuovi immagine'],
+'Comprobante':['Receipt','Comprovante','Justificatif','Beleg','Ricevuta'],
+'✅ Confirmar comprobante':['✅ Confirm receipt','✅ Confirmar comprovante','✅ Confirmer le justificatif','✅ Beleg bestätigen','✅ Conferma ricevuta'],
+'Enviando...':['Sending...','Enviando...','Envoi...','Wird gesendet...','Invio...'],
+'Registro confirmado':['Registration confirmed','Cadastro confirmado','Inscription confirmée','Anmeldung bestätigt','Registrazione confermata'],
+'Tu número quedó reservado. Te avisaremos si ganas.':['Your number is reserved. We\'ll let you know if you win.','Seu número foi reservado. Avisaremos se você ganhar.','Votre numéro est réservé. Nous vous préviendrons si vous gagnez.','Deine Nummer ist reserviert. Wir informieren dich, falls du gewinnst.','Il tuo numero è riservato. Ti avviseremo se vinci.'],
+'Volviendo al inicio en 3 segundos... 🍀':['Returning to the start in 3 seconds... 🍀','Voltando ao início em 3 segundos... 🍀','Retour à l\'accueil dans 3 secondes... 🍀','Zurück zum Start in 3 Sekunden... 🍀','Ritorno all\'inizio tra 3 secondi... 🍀'],
+// factura
+'FACTURA':['INVOICE','FATURA','FACTURE','RECHNUNG','FATTURA'],
+'⏳ Comprobante recibido · en verificación':['⏳ Receipt received · under review','⏳ Comprovante recebido · em verificação','⏳ Justificatif reçu · en cours de vérification','⏳ Beleg erhalten · wird geprüft','⏳ Ricevuta ricevuta · in verifica'],
+'⚠️ No se pudo confirmar tu comprobante (si tu reserva venció, otra persona pudo tomar tus números) · escríbenos por WhatsApp con una captura de esta factura':['⚠️ Your receipt could not be confirmed (if your reservation expired, someone else may have taken your numbers) · message us on WhatsApp with a screenshot of this invoice','⚠️ Não foi possível confirmar seu comprovante (se sua reserva venceu, outra pessoa pode ter pego seus números) · escreva para nós no WhatsApp com um print desta fatura','⚠️ Votre justificatif n\'a pas pu être confirmé (si votre réservation a expiré, quelqu\'un d\'autre a pu prendre vos numéros) · écrivez-nous sur WhatsApp avec une capture de cette facture','⚠️ Dein Beleg konnte nicht bestätigt werden (wenn deine Reservierung abgelaufen ist, hat evtl. jemand anderes deine Nummern genommen) · schreibe uns per WhatsApp mit einem Screenshot dieser Rechnung','⚠️ Non è stato possibile confermare la ricevuta (se la prenotazione è scaduta, qualcun altro potrebbe aver preso i tuoi numeri) · scrivici su WhatsApp con uno screenshot di questa fattura'],
+'🎫 Rifa':['🎫 Raffle','🎫 Rifa','🎫 Tombola','🎫 Verlosung','🎫 Lotteria'],
+'🏆 Gran premio':['🏆 Grand prize','🏆 Grande prêmio','🏆 Grand prix','🏆 Hauptpreis','🏆 Primo premio'],
+'💳 Método':['💳 Method','💳 Método','💳 Méthode','💳 Methode','💳 Metodo'],
+'Total pagado':['Total paid','Total pago','Total payé','Gesamtbetrag','Totale pagato'],
+'Comprobante adjunto':['Attached receipt','Comprovante anexado','Justificatif joint','Beleg angehängt','Ricevuta allegata'],
+'¡Gracias por participar! 🍀':['Thanks for participating! 🍀','Obrigado por participar! 🍀','Merci de participer ! 🍀','Danke fürs Mitmachen! 🍀','Grazie per aver partecipato! 🍀'],
+'Guarda una captura de esta factura. Te avisaremos si ganas.':['Keep a screenshot of this invoice. We\'ll let you know if you win.','Guarde um print desta fatura. Avisaremos se você ganhar.','Conservez une capture de cette facture. Nous vous préviendrons si vous gagnez.','Speichere einen Screenshot dieser Rechnung. Wir informieren dich, falls du gewinnst.','Conserva uno screenshot di questa fattura. Ti avviseremo se vinci.'],
+'Finalizar':['Finish','Finalizar','Terminer','Abschließen','Termina']
+};
+function tr(s,a){
+  var d=I18N[s],o=s;
+  if(d&&LANG!=='es')o=d[LIDX[LANG]]||s;
+  if(a)o=o.replace(/\{(\d)\}/g,function(_,i){return a[+i];});
+  return o;
+}
+function trDom(){
+  var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null),n,L=[];
+  while(n=w.nextNode()){var p=n.parentNode.nodeName;if(p!=='SCRIPT'&&p!=='STYLE')L.push(n);}
+  L.forEach(function(n){
+    var src=n._o!==undefined?n._o:n.nodeValue, k=src.trim();
+    if(!k||!I18N[k])return;
+    n._o=src;n.nodeValue=src.replace(k,tr(k));
+  });
+  document.querySelectorAll('[placeholder],[title],[aria-label],[alt]').forEach(function(e){
+    ['placeholder','title','aria-label','alt'].forEach(function(a){
+      var v=e.getAttribute(a);if(v===null)return;
+      var key='_o_'+a,o=e[key]!==undefined?e[key]:v;
+      if(I18N[o]){e[key]=o;e.setAttribute(a,tr(o));}
+    });
+  });
+}
+function detectLang(){
+  try{var g=localStorage.getItem('rifa_lang');if(g&&LANGS[g])return g;}catch(e){}
+  var b=String(navigator.language||'es').toLowerCase().slice(0,2);
+  return LANGS[b]?b:'en';
+}
+function setLang(l){
+  if(!LANGS[l])l='es';
+  LANG=l;
+  try{localStorage.setItem('rifa_lang',l);}catch(e){}
+  document.documentElement.lang=l==='pt'?'pt-BR':l;
+  var sv=sels.slice();
+  aplicar();
+  sels.push.apply(sels,sv);paintSingles();updBar();
+  trDom();
+  var s=document.getElementById('lang');if(s&&s.value!==l)s.value=l;
+}
+
 // ── CONFIGURACIÓN: valores por defecto (los reemplaza lo que guardes en el panel) ──
 var DEF={
   sitio:{nombre:'Gran Rifa de Premios',etiqueta:'🔥 CUPOS LIMITADOS',subtitulo:'¡Elige tu número de la suerte y gana hasta $1.000 USD!',moneda:'USD',color:'#1D4ED8',texto:'#FFFFFF',whatsapp:'',
@@ -480,24 +655,24 @@ function aplicar(){
   r.setProperty('--bg',mezcla(s.color,.94)); r.setProperty('--tint',mezcla(s.color,.86)); r.setProperty('--bord',mezcla(s.color,.8));
   r.setProperty('--cd',CFG.nums.cDisp); r.setProperty('--cr',CFG.nums.cRes); r.setProperty('--cv',CFG.nums.cVen);
   r.setProperty('--cols',Math.max(3,Math.min(20,Number(CFG.nums.cols)||10)));
-  document.title=s.nombre||'Gran Rifa';
-  document.getElementById('hb').textContent=s.etiqueta||'';
-  document.getElementById('hh1').textContent=s.nombre||'';
-  document.getElementById('hsub').textContent=s.subtitulo||'';
-  document.getElementById('flo').textContent='🎟️ '+(s.nombre||'');
-  document.getElementById('fx_tit').textContent=s.nombre||'';
+  document.title=tr(s.nombre)||'Gran Rifa';
+  document.getElementById('hb').textContent=tr(s.etiqueta)||'';
+  document.getElementById('hh1').textContent=tr(s.nombre)||'';
+  document.getElementById('hsub').textContent=tr(s.subtitulo)||'';
+  document.getElementById('flo').textContent='🎟️ '+(tr(s.nombre)||'');
+  document.getElementById('fx_tit').textContent=tr(s.nombre)||'';
   var act=modsAct(), medals=['🥇','🥈','🥉'];
   document.getElementById('hstats').innerHTML=act.map(function(k){var n=+k.slice(1),p=premioDe(k);
-    return '<div class="hsi"><span class="big">'+esc(fmt(CFG.nums.mods[k].precio))+'</span><span class="sm">'+n+(n===1?' boleto':' boletos')+(p?' · Premio: '+esc(p):'')+'</span></div>';}).join('');
-  document.getElementById('ph_t').textContent=s.premiosTitulo||'';
-  document.getElementById('ph_s').textContent=s.premiosSub||'';
+    return '<div class="hsi"><span class="big">'+esc(fmt(CFG.nums.mods[k].precio))+'</span><span class="sm">'+n+' '+tr(n===1?'boleto':'boletos')+(p?' · '+tr('Premio:')+' '+esc(p):'')+'</span></div>';}).join('');
+  document.getElementById('ph_t').textContent=tr(s.premiosTitulo)||'';
+  document.getElementById('ph_s').textContent=tr(s.premiosSub)||'';
   var seen={};
   document.getElementById('pcont').innerHTML=(s.premios||[]).filter(function(p){return String(p.valor).trim();}).map(function(p){
     var i=seen[p.mod]=(seen[p.mod]===undefined?0:seen[p.mod]+1), m=CFG.nums.mods[p.mod];
-    return '<div class="pu" style="margin:0;padding:2rem 1.25rem"><span class="pi">'+(medals[i]||'🏅')+'</span><p class="pn">'+esc(p.puesto)+'</p><p class="pm">'+esc(p.valor)+'</p><p class="pd">Boletos '+esc(p.mod)+(m?' · Números '+rango(+p.mod.slice(1))+' · '+esc(fmt(m.precio)):'')+' 🎉</p></div>';}).join('');
+    return '<div class="pu" style="margin:0;padding:2rem 1.25rem"><span class="pi">'+(medals[i]||'🏅')+'</span><p class="pn">'+esc(tr(p.puesto))+'</p><p class="pm">'+esc(p.valor)+'</p><p class="pd">'+tr('Boletos')+' '+esc(p.mod)+(m?' · '+tr('Números')+' '+rango(+p.mod.slice(1))+' · '+esc(fmt(m.precio)):'')+' 🎉</p></div>';}).join('');
   var wa=document.getElementById('wa'), dg=String(s.whatsapp||'').replace(/\D/g,'');
   if(dg.length>=8){wa.href='https://wa.me/'+dg;wa.style.display='flex';}else wa.style.display='none';
-  document.getElementById('pst_t').textContent='Elige tu método y sigue los pasos · Tu reserva dura '+(Number(CFG.nums.reserva)||24)+' horas sin pago';
+  document.getElementById('pst_t').textContent=tr('Elige tu método y sigue los pasos · Tu reserva dura {0} horas sin pago',[Number(CFG.nums.reserva)||24]);
   if(act.indexOf('x'+K)<0)K=+(act[0]||'x1').slice(1);
   document.getElementById('xwb').innerHTML=act.map(function(k){return '<button class="xb'+(+k.slice(1)===K?' on':'')+'" onclick="setMax('+k.slice(1)+',this)">'+k+' — '+esc(fmt(CFG.nums.mods[k].precio))+'</button>';}).join('');
   renderMetodos(); sels.length=0; modoUI();
@@ -529,16 +704,16 @@ function renderMetodos(){
   var chips=L.length>1?'<div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.25rem">'+L.map(function(x,i){
     return '<button class="xb'+(i===_metIdx?' on':'')+'" onclick="selMet('+i+')">'+esc(PLATS[x.tipo]||x.tipo)+'</button>';}).join('')+'</div>':'';
   d.innerHTML=chips+'<div class="pg2"><div class="pl">'
-    +'<div class="pas"><div class="pan">1</div><div><strong>Abre tu app o banca</strong><p>Entra a '+esc(nom)+'</p></div></div>'
-    +'<div class="pas"><div class="pan">2</div><div><strong>Envía el pago</strong><p>'+(m.qr?'Escanea el QR o envía':'Envía')+' a <b>'+esc(m.titular)+'</b>'+(m.dato?' · '+esc(m.dato):'')+'</p></div></div>'
-    +'<div class="pas"><div class="pan">3</div><div><strong>Monto exacto</strong><p>Paga <strong>'+esc(fmt(regData.total||precio()))+'</strong></p></div></div>'
-    +'<div class="pas"><div class="pan">4</div><div><strong>Guarda el comprobante</strong><p>Tómale captura y súbela en el siguiente paso</p></div></div>'
-    +'<div class="nota">Realiza la transferencia y toca el botón Siguiente 👇</div></div>'
-    +'<div class="qc" style="border-color:'+c+'"><p style="font-size:.75rem;font-weight:800;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem">'+(m.qr?'Escanea o copia 👇':'Copia los datos 👇')+'</p>'
+    +'<div class="pas"><div class="pan">1</div><div><strong>'+tr('Abre tu app o banca')+'</strong><p>'+esc(tr('Entra a {0}',[nom]))+'</p></div></div>'
+    +'<div class="pas"><div class="pan">2</div><div><strong>'+tr('Envía el pago')+'</strong><p>'+tr(m.qr?'Escanea el QR o envía a':'Envía a')+' <b>'+esc(m.titular)+'</b>'+(m.dato?' · '+esc(m.dato):'')+'</p></div></div>'
+    +'<div class="pas"><div class="pan">3</div><div><strong>'+tr('Monto exacto')+'</strong><p>'+tr('Paga')+' <strong>'+esc(fmt(regData.total||precio()))+'</strong></p></div></div>'
+    +'<div class="pas"><div class="pan">4</div><div><strong>'+tr('Guarda el comprobante')+'</strong><p>'+tr('Tómale captura y súbela en el siguiente paso')+'</p></div></div>'
+    +'<div class="nota">'+tr('Realiza la transferencia y toca el botón Siguiente 👇')+'</div></div>'
+    +'<div class="qc" style="border-color:'+c+'"><p style="font-size:.75rem;font-weight:800;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem">'+tr(m.qr?'Escanea o copia 👇':'Copia los datos 👇')+'</p>'
     +(m.qr?'<div class="qf"><img src="'+esc(m.qr)+'" alt="QR '+esc(nom)+'"></div>':'')
     +'<p style="font-family:\'Fredoka One\',cursive;font-size:1.1rem;margin:.5rem 0">'+esc(nom)+'</p>'
     +'<p style="font-size:.85rem;color:var(--gr);font-weight:700">'+esc(m.titular)+'</p>'
-    +(m.dato?'<p style="font-size:.95rem;font-weight:800;margin:.3rem 0;word-break:break-all">'+esc(m.dato)+'</p><button class="brg" onclick="copiarDato()">Copiar</button><p id="copiado" style="display:none;font-size:.75rem;color:#2E7D32;font-weight:800;margin-top:.4rem">¡Copiado!</p>':'')
+    +(m.dato?'<p style="font-size:.95rem;font-weight:800;margin:.3rem 0;word-break:break-all">'+esc(m.dato)+'</p><button class="brg" onclick="copiarDato()">'+tr('Copiar')+'</button><p id="copiado" style="display:none;font-size:.75rem;color:#2E7D32;font-weight:800;margin-top:.4rem">'+tr('¡Copiado!')+'</p>':'')
     +'</div></div>';
 }
 function selMet(i){_metIdx=i;renderMetodos();}
@@ -559,6 +734,7 @@ async function enviarASheets(datos){
     p+='&numeros='+encodeURIComponent(Array.isArray(datos.nums)?datos.nums.join(','):(datos.nums||''));
     p+='&total='+encodeURIComponent(datos.total||0);
     p+='&metodo='+encodeURIComponent(datos.metodo||'binance');
+    p+='&idioma='+encodeURIComponent(LANG);
     p+='&fecha='+encodeURIComponent(datos.fecha||new Date().toLocaleString('es-CO'));
     var json=await (await fetch(GSHEET_URL+'?'+p,{redirect:'follow'})).json();
     if(!json.ok){console.error('[Sheets] Error al guardar:',json.error);return {ok:false,error:json.error,ocupados:json.ocupados};}
@@ -637,8 +813,8 @@ function buildTalon(){
     (function(n){tb.addEventListener('click',function(){toggleTrio(n);});})(n);
     tg.appendChild(tb);
   }
-  document.getElementById('tw_h').textContent='Talonario x'+K;
-  document.getElementById('tw_p').textContent='Cada boleto incluye '+K+' números entre el '+rango(K).replace('–',' y el ')+'. Haz clic o toca un boleto para seleccionarlo.';
+  document.getElementById('tw_h').textContent=tr('Talonario x{0}',[K]);
+  document.getElementById('tw_p').textContent=tr('Cada boleto incluye {0} números entre el {1} y el {2}. Haz clic o toca un boleto para seleccionarlo.',[K].concat(rango(K).split('–')));
   syncTrio();
 }
 function toggleTrio(n){
@@ -704,7 +880,7 @@ function updBar(){
   if(typeof visBarra==='function')visBarra();
   syncTrio();
   var bar=document.getElementById('selbar');
-  if(!sels.length){bar.classList.remove('on');document.getElementById('numsel').textContent='Elige tus números arriba primero';return;}
+  if(!sels.length){bar.classList.remove('on');document.getElementById('numsel').textContent=tr('Elige tus números arriba primero');return;}
   bar.classList.add('on');
   var h='';for(var i=0;i<sels.length;i++)h+='<span class="sch">'+pad(sels[i])+'</span>';
   document.getElementById('schips').innerHTML=h;
@@ -764,26 +940,26 @@ async function registrar(){
   var cc=document.getElementById('icc').value, dg=document.getElementById('icel').value.replace(/\D/g,'').replace(/^0+/,''), p=cc+' '+dg;
   var c=document.getElementById('ico').value.trim();
   var ok=true,first=null;
-  function bad(inp,err,msg){if(inp)inp.classList.add('bad');var e=document.getElementById(err);e.textContent='⚠️ '+msg;e.classList.add('on');ok=false;if(!first)first=inp||document.getElementById('numsel');}
+  function bad(inp,err,msg){if(inp)inp.classList.add('bad');var e=document.getElementById(err);e.textContent='⚠️ '+tr(msg);e.classList.add('on');ok=false;if(!first)first=inp||document.getElementById('numsel');}
   limpiarErrores();
-  if(n.length<3||!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ][A-Za-zÁÉÍÓÚÜÑáéíóúüñ' .-]*$/.test(n))bad(document.getElementById('ino'),'e_ino','Escribe tu nombre completo (solo letras).');
+  if(n.length<3||!/^[\p{L}][\p{L}\p{M}' .-]*$/u.test(n))bad(document.getElementById('ino'),'e_ino','Escribe tu nombre completo (solo letras).');
   if(dg.length<6||dg.length>12)bad(document.getElementById('icel'),'e_icel','Escribe solo tu número, sin el código del país. Ej: 300 123 4567');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c))bad(document.getElementById('ico'),'e_ico','Correo no válido. Ej: tucorreo@gmail.com');
   if(!sels.length){document.getElementById('numsel').classList.add('bad');bad(null,'e_num','Elige al menos un número arriba.');}
   if(!ok){if(first){first.scrollIntoView({behavior:'smooth',block:'center'});if(first.focus&&first.tagName==='INPUT')first.focus();}return;}
   var nums=[];for(var i=0;i<sels.length;i++)nums.push(pad(sels[i]));
   var tot=precio(), btn=document.querySelector('#fcon .br');
-  btn.disabled=true;btn.textContent='Reservando…';
+  btn.disabled=true;btn.textContent=tr('Reservando…');
   // El servidor es quien confirma que los números siguen libres y quien asigna el ID
   var res=await enviarASheets({nombre:n,pais:p,correo:c,nums:nums.join(','),total:tot,metodo:_metodo,fecha:new Date().toLocaleString('es-CO')});
-  btn.disabled=false;btn.textContent='✅ Registrarse y proceder al pago';
+  btn.disabled=false;btn.textContent=tr('✅ Registrarse y proceder al pago');
   if(!res.ok){
     var en=document.getElementById('e_num');
     if(res.error==='ocupado'){
       sels.length=0;await cargarEstado();updBar();
-      en.textContent='⚠️ Alguno de esos números acaba de ser tomado por otra persona. Elige otros.';
+      en.textContent='⚠️ '+tr('Alguno de esos números acaba de ser tomado por otra persona. Elige otros.');
     }else{
-      en.textContent='⚠️ No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.';
+      en.textContent='⚠️ '+tr('No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.');
     }
     en.classList.add('on');document.getElementById('numeros').scrollIntoView({behavior:'smooth'});
     return;
@@ -794,7 +970,7 @@ async function registrar(){
   sels.length=0;paintSingles();syncTrio();recount();updBar();
   document.getElementById('fcon').style.display='none';
   document.getElementById('exito').style.display='block';
-  document.getElementById('exmsg').textContent='Registro guardado. Abriendo pago en 1 segundo...';
+  document.getElementById('exmsg').textContent=tr('Registro guardado. Abriendo pago en 1 segundo...');
   setTimeout(abrirPago,1200);
 }
 
@@ -814,7 +990,7 @@ function cerrarPago(){document.getElementById('pgPago').classList.remove('on');}
 function abrirComp(){
   document.getElementById('pgPago').classList.remove('on');
   document.getElementById('pgComp').classList.add('on');
-  document.getElementById('compSub').textContent='Sube el comprobante de tu pago en '+metName();
+  document.getElementById('compSub').textContent=tr('Sube el comprobante de tu pago en {0}',[metName()]);
   window.scrollTo(0,0);
 }
 function quitarComp(){
@@ -855,27 +1031,27 @@ function prevComp(e){
 
 async function confirmarComp(){
   var b=document.getElementById('cbtn');
-  b.disabled=true;b.textContent='Enviando...';
+  b.disabled=true;b.textContent=tr('Enviando...');
   var okSheets=await actualizarEnSheets({id:regData.id,estado:'confirmado',metodo:_metodo,comprobante:compImg||'subido'});
-  b.disabled=false;b.textContent='✅ Confirmar comprobante';b.style.display='none';
+  b.disabled=false;b.textContent=tr('✅ Confirmar comprobante');b.style.display='none';
   mostrarFactura(okSheets);
 }
 
 function mostrarFactura(enviado){
   var k=regData.k||regData.nums.length;
   document.getElementById('fx_id').textContent=String(regData.id||'—');
-  document.getElementById('fx_fecha').textContent=new Date().toLocaleString('es-CO');
+  document.getElementById('fx_fecha').textContent=new Date().toLocaleString(LOC[LANG]);
   document.getElementById('fx_nom').textContent=regData.nombre;
   document.getElementById('fx_cel').textContent=regData.pais;
   document.getElementById('fx_cor').textContent=regData.correo;
-  document.getElementById('fx_rifa').textContent='x'+k+' · '+k+(k===1?' boleto':' boletos');
+  document.getElementById('fx_rifa').textContent='x'+k+' · '+k+' '+tr(k===1?'boleto':'boletos');
   document.getElementById('fx_prem').textContent=premioDe('x'+k)||'—';
   document.getElementById('fx_met').textContent=metName();
   document.getElementById('fx_nums').innerHTML=regData.nums.map(function(n){return '<i>'+esc(n)+'</i>';}).join('');
   document.getElementById('fx_tot').textContent=fmt(regData.total);
   var st=document.getElementById('fx_st');
-  if(enviado){st.textContent='⏳ Comprobante recibido · en verificación';st.style.cssText='';}
-  else{st.textContent='⚠️ No se pudo confirmar tu comprobante (si tu reserva venció, otra persona pudo tomar tus números) · escríbenos por WhatsApp con una captura de esta factura';st.style.cssText='background:#FFE4E4;border-color:#FF9090;color:#CC3333;border-radius:14px;line-height:1.4';}
+  if(enviado){st.textContent=tr('⏳ Comprobante recibido · en verificación');st.style.cssText='';}
+  else{st.textContent=tr('⚠️ No se pudo confirmar tu comprobante (si tu reserva venció, otra persona pudo tomar tus números) · escríbenos por WhatsApp con una captura de esta factura');st.style.cssText='background:#FFE4E4;border-color:#FF9090;color:#CC3333;border-radius:14px;line-height:1.4';}
   var im=document.getElementById('fx_img'),pw=document.getElementById('fx_pw');
   if(compImg&&compImg.indexOf('data:')===0){im.src=compImg;pw.style.display='flex';}else pw.style.display='none';
   document.getElementById('pgComp').classList.remove('on');
@@ -909,7 +1085,7 @@ document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
 // ── arranque: pinta con valores por defecto y luego aplica la configuración del panel ──
 var CFG_KEY='rifa_cfg_pub', _cfgRaw=null;
 try{_cfgRaw=localStorage.getItem(CFG_KEY);if(_cfgRaw)CFG=mixC(DEF,JSON.parse(_cfgRaw));}catch(e){_cfgRaw=null;}
-aplicar();
+setLang(detectLang());
 cargarConfig();
 setInterval(cargarEstado,20000);   // refresca cada 20 s las reservas/ventas de otros usuarios
 visBarra();
