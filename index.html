@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gran Rifa de Premios</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:image" content="https://rifa-granpremiox3.netlify.app/logo.png">
+
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--r:#1D4ED8;--o:#4f75e1;--on:#fff;--tint:#dfe6fa;--bord:#d2dcf7;--cd:#dde;--cr:#FFC107;--cv:#FF9090;--cols:10;--y:#FFB84D;--g:#2ED573;--bg:#f1f4fd;--tx:#1a1a2e;--gr:#6c757d;--ra:16px}
@@ -30,7 +35,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-
 .hsi .sm{font-size:.7rem;font-weight:800;opacity:.85;text-transform:uppercase;letter-spacing:.5px}
 .bh{display:inline-block;background:#fff;color:var(--r);font-family:'Fredoka One',cursive;font-size:clamp(1.1rem,5vw,1.3rem);padding:.9rem 2rem;border-radius:50px;text-decoration:none;box-shadow:0 6px 24px rgba(0,0,0,.15);transition:transform .2s}
 .bh:hover{transform:translateY(-4px) scale(1.04)}
-.wv{position:absolute;bottom:0;left:0;width:100%}.wv path{fill:var(--bg)}
+.wv{position:absolute;bottom:-2px;left:0;width:100%;display:block}.wv path{fill:#fff}
 section{padding:3rem 1.25rem}
 @media(min-width:600px){section{padding:4rem 2rem}}
 .st{display:inline-block;background:#FFE5E5;color:var(--r);font-weight:800;font-size:.75rem;padding:.35rem 1rem;border-radius:50px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:.75rem}
@@ -211,13 +216,14 @@ footer p{font-size:.85rem;opacity:.6;font-weight:600}
 .tb.rsv span:first-child{color:color-mix(in srgb,var(--cr) 55%,#000)}
 .wa{position:fixed;right:1rem;bottom:5.5rem;z-index:95;width:54px;height:54px;border-radius:50%;background:#25D366;color:#fff;display:none;align-items:center;justify-content:center;font-size:1.7rem;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .phr{display:flex;gap:.5rem}.phr select{flex:0 0 104px;width:104px;padding-left:.7rem;padding-right:.4rem;font-weight:800;cursor:pointer}.phr input{flex:1;min-width:0}
+.logo-i{height:38px;width:auto;vertical-align:middle;margin-right:.4rem}.nl,.pgn .lo{display:flex;align-items:center}.pgn .logo-i{height:34px}
 </style>
 <script>try{var q=(localStorage.getItem('rifa_color')||'').split('|');if(/^#[0-9a-f]{6}$/i.test(q[0])){var h=q[0].slice(1),c=[0,2,4].map(function(i){return parseInt(h.substr(i,2),16)}),m=function(w){return '#'+c.map(function(v){return Math.round(v+(255-v)*w).toString(16).padStart(2,'0')}).join('')},st=document.documentElement.style;st.setProperty('--r',q[0]);st.setProperty('--o',m(.22));st.setProperty('--on',/^#[0-9a-f]{6}$/i.test(q[1])?q[1]:'#FFFFFF');st.setProperty('--bg',m(.94));st.setProperty('--tint',m(.86));st.setProperty('--bord',m(.8))}}catch(e){}</script>
 </head>
 <body>
 
 <nav>
-  <div class="nl">🎟️ Mi Rifa</div>
+  <div class="nl"><img src="logo.png" alt="Mi Rifa" class="logo-i"> Mi Rifa</div>
   <ul class="nm">
     <li><a href="#inicio">Inicio</a></li>
     <li><a href="#premios">Premio</a></li>
@@ -235,7 +241,7 @@ footer p{font-size:.85rem;opacity:.6;font-weight:600}
     <div class="hst" id="hstats"></div>
     <a href="#numeros" class="bh">🎟️ Participa ya</a>
   </div>
-  <svg class="wv" viewBox="0 0 1440 60" fill="none"><path d="M0 60L60 50C120 40 240 20 360 15C480 10 600 20 720 27.5C840 35 960 40 1080 37.5C1200 35 1320 25 1380 20L1440 15V60H0Z" fill="#f1f4fd"/></svg>
+  <svg class="wv" viewBox="0 0 1440 60" fill="none"><path d="M0 60L60 50C120 40 240 20 360 15C480 10 600 20 720 27.5C840 35 960 40 1080 37.5C1200 35 1320 25 1380 20L1440 15V60H0Z" fill="#fff"/></svg>
 </div>
 
 <section id="premios">
@@ -326,7 +332,7 @@ footer p{font-size:.85rem;opacity:.6;font-weight:600}
 
 <!-- PÁGINA PAGO -->
 <div class="pg" id="pgPago">
-  <div class="pgn"><span class="lo">🎟️ Mi Rifa</span><button class="bk" onclick="cerrarPago()">← Volver</button></div>
+  <div class="pgn"><span class="lo"><img src="logo.png" alt="Mi Rifa" class="logo-i"> Mi Rifa</span><button class="bk" onclick="cerrarPago()">← Volver</button></div>
   <div class="pb">
     <h2 class="pt">💳 Realiza tu pago</h2>
     <p class="pst" id="pst_t">Elige tu método y sigue los pasos</p>
@@ -373,7 +379,7 @@ footer p{font-size:.85rem;opacity:.6;font-weight:600}
 
 <!-- PÁGINA COMPROBANTE -->
 <div class="pg" id="pgComp">
-  <div class="pgn"><span class="lo">🎟️ Mi Rifa</span><button class="bk" onclick="cerrarComp()">← Volver</button></div>
+  <div class="pgn"><span class="lo"><img src="logo.png" alt="Mi Rifa" class="logo-i"> Mi Rifa</span><button class="bk" onclick="cerrarComp()">← Volver</button></div>
   <div style="max-width:520px;margin:0 auto;padding:3rem 1.5rem;text-align:center">
     <p style="font-size:3rem;margin-bottom:.5rem">📎</p>
     <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:.5rem">Sube tu comprobante</h2>
@@ -399,7 +405,7 @@ footer p{font-size:.85rem;opacity:.6;font-weight:600}
 
 <!-- PÁGINA FACTURA -->
 <div class="pg" id="pgFact">
-  <div class="pgn"><span class="lo">🎟️ Mi Rifa</span></div>
+  <div class="pgn"><span class="lo"><img src="logo.png" alt="Mi Rifa" class="logo-i"> Mi Rifa</span></div>
   <div class="fx">
     <div class="fxc" id="fxcard">
       <div class="fxh">
